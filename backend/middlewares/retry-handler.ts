@@ -1,4 +1,4 @@
-import { RetryOptions } from "../interfaces/middleware-interfaces.js";
+import { RetryOptions } from "../interfaces/middlewares-interfaces.js";
 
 export const RetryHandler = async (
   operation: () => Promise<void>,

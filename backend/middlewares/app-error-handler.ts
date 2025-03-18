@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import { CustomError } from "../interfaces/middleware-interfaces.js";
+import { CustomError } from "../interfaces/middlewares-interfaces.js";
 
 import { CastError } from "./errors/cast-error.js";
 import { DuplicateKeyError } from "./errors/duplicate-key-error.js";
