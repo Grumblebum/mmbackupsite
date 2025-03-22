@@ -8,10 +8,12 @@ export const SessionFullNotification = async (
 ) => {
   try {
     const updatedSession = await FetchSessionService(sessionId);
+    
     if (!updatedSession) {
       console.warn(`Session not found for sessionId: ${sessionId}`);
       return;
     }
+    
     if (updatedSession.participantCount === 10) {
       io.to(sessionId).emit("sessionFull", {
         type: "MM_ERROR_MSG",

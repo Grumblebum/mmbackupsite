@@ -1,4 +1,5 @@
-import ChatSystemContextProvider from "@/providers/chat-system-provider";
+import ChatSystemContextProvider from "@/providers/chat-system-context-provider";
+import { SocketContextProvider } from "@/providers/socket-context-provider";
 
 import "../../public/styles/main.scss";
 
@@ -76,7 +77,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <ChatSystemContextProvider>{children}</ChatSystemContextProvider>
+        <ChatSystemContextProvider>
+          <SocketContextProvider>{children}</SocketContextProvider>
+        </ChatSystemContextProvider>
       </body>
     </html>
   );
