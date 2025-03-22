@@ -115,7 +115,7 @@ const Cloudflare = () => {
     updateState("sessionData", {
       ...sessionData,
       sessionURL: `https://messagemoment.com/chat/${result}`,
-      sessionCode: result,
+      sessionId: result,
     });
 
     return result;

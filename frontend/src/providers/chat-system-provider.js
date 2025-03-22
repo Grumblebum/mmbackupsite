@@ -27,7 +27,7 @@ const initialState = {
   filedata: {},
   sessionData: {
     sessionURL: "",
-    sessionCode: "",
+    sessionId: "",
     sessionType: "",
     sessionSeurityCode: "",
   },

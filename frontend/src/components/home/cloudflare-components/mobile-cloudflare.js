@@ -56,14 +56,14 @@ const MobileCloudFlare = forwardRef(
           updateState("sessionData", {
             ...sessionData,
             sessionURL: "https://messagemoment.com/chat/sqjgcf9o2s5na",
-            sessionCode: "sqjgcf9o2s5na",
+            sessionId: "sqjgcf9o2s5na",
             sessionSeurityCode: "4562",
           });
 
           setIsLoadingGenerateLink(false);
         }, 1000);
       } else {
-        router.push(`/chat/${sessionData?.sessionCode}`);
+        router.push(`/chat/${sessionData?.sessionId}`);
       }
     };
     return (
