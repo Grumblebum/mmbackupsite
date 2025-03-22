@@ -299,11 +299,12 @@ export const messageType = {
 export const renderRemoveUserText = (name) => {
   return `You are about to remove ${name} from this chat session. Are you sure you want to proceed? Type 'y' for Yes, 'n' for No.`;
 };
+
 export const DEFAULT_MESSAGES = {
   GREETING:
     "Welcome to MessageMoment.com, where your message only lasts a moment!",
   ADVERTISEMENT:
-    "Big Sale on at Flight Centre! Don’t miss out. Visit www.flightcentre.com now and book your trip!",
+    "Big Sale on at Flight Centre! Don't miss out. Visit www.flightcentre.com now and book your trip!",
   SECURITY_CODE:
     "This chat session is protected using a Security Code. ...> Please enter the Security Code you received with your chat link:",
   MESSAGE_MOMENT:
@@ -316,19 +317,6 @@ export const DEFAULT_MESSAGES = {
     "You are about to enter Project Mode. Are you sure you want to proceed? Type 'y' for Yes, 'n' for No  ---. By proceeding, you are confirming your understanding and agreement to these conditions:1. The Message Expiry Time will be paused, meaning no messages will be auto-deleted.2. From this point forward, all chat messages can be saved.3. To safeguard previous conversations, all existing chat will be cleared upon activation of Project Mode.4. You and all fellow participants agree to these conditions.",
 };
 
-export const USER_HANDERLS = [
-  "#704F2C",
-  "#EB5757",
-  "#F2994A",
-  "#EDC447",
-  "#219653",
-  "#6FCF97",
-  "#56CCF2",
-  "#F368E0",
-  "#9B42EE",
-  "#BB6BD9",
-];
-
 export const commandlist = [
   "/leave",
   "/lock",
@@ -337,6 +325,7 @@ export const commandlist = [
   "/project on",
   "/remove",
 ];
+
 export const Faqcommandlist = [
   "/leave",
   "/lock",
@@ -524,6 +513,7 @@ export const checkIsConnected = async () => {
     window.solana?.disconnect();
   }
 };
+
 export const isPhantomExist = () => {
   let isWalletExist = false;
   if (window.solana && window.solana.isPhantom) {
@@ -641,47 +631,6 @@ export const disconnectPhantom = () => {
   window.location.href = `https://phantom.app/ul/v1/disconnect?${params}`;
 };
 
-import ClipboardJS from "clipboard";
-export const handleCopyText = async (url, secureCode, urlType) => {
-  return new Promise((resolve, reject) => {
-    try {
-      let isSuccess = false;
-      const textToCopy =
-        urlType === "Secure" && url
-          ? `${url}\n\nSecurity Code: ${secureCode}`
-          : url;
-      if (textToCopy) {
-        const tempButton = document.createElement("button");
-        tempButton.setAttribute("data-clipboard-text", textToCopy);
-        const clipboard = new ClipboardJS(tempButton);
-
-        clipboard.on("success", () => {
-          console.log("Text copied to clipboard successfully!");
-          isSuccess = true;
-          clipboard.destroy();
-          tempButton.remove();
-          resolve(isSuccess);
-        });
-
-        clipboard.on("error", () => {
-          console.error("Failed to copy text.");
-          isSuccess = false;
-          clipboard.destroy();
-          tempButton.remove();
-          reject(isSuccess);
-        });
-
-        tempButton.click();
-      } else {
-        reject(false);
-      }
-    } catch (error) {
-      console.error(error);
-      reject(false);
-    }
-  });
-};
-
 export const options = [
   "General Query",
   "Support",
@@ -705,47 +654,3 @@ export const users = [
   "Robert",
   "Nicolas",
 ];
-
-export const ShareLink = (type, sessionData,url) => {
-  const shareText = encodeURIComponent(
-    `Join me for a chat on MessageMoment – ${url}${
-      sessionData.type == "Secure"
-        ? `\n\nSecurity Code: ${sessionData?.secureCode}`
-        : ""
-    }`
-  );
-  const shareTextMail = encodeURIComponent(
-    `Join me here – ${url}/${
-      sessionData.type == "Secure"
-        ? `\n\nSecurity Code: ${sessionData?.secureCode}`
-        : ""
-    }`
-  );
-
-  const shareTelegramURL = encodeURIComponent(`${url}`.trim());
-  const shareTelegramText = encodeURIComponent(`Join me for a chat on MessageMoment.${sessionData.type == "Secure"? `\n\nSecurity Code: ${sessionData?.secureCode}`: ""}`);
-
-
-  if (type == "whatsapp") {
-    window.open(`https://wa.me/?text=${shareText}`, "_blank");
-  } else if (type == "telegram") {
-    window.open(
-      `https://t.me/share/url?url=${shareTelegramURL}&text=${shareTelegramText}`,"_blank"
-    );
-  } else if (type == "message") {
-    window.open(`sms:?&body=${shareText}`, "_blank");
-  } else if (type == "messenger") {
-    window.open(
-      `https://www.facebook.com/dialog/send?app_id=YOUR_FACEBOOK_APP_ID&link=https://message-moment-app.vercel.app/&redirect_uri=https://message-moment-app.vercel.app/`,
-      "_blank"
-    );
-  } else if (type == "mail") {
-    window.open(
-      `mailto:?subject=Join me for a chat on MessageMoment&body=${shareTextMail}`,
-      "_blank"
-    );
-  } else if (type == "instagram") {
-    window.open(`https://www.instagram.com/`, "_blank");
-  }
-  return null;
-};

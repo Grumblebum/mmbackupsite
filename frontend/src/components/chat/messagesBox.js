@@ -13,7 +13,6 @@ import {
   messageType,
   renderRemoveUserText,
   SESSION_TYPE,
-  USER_HANDERLS,
 } from "@/dummy-data";
 import useCheckIsMobileView from "@/hook/useCheckIsMobileView";
 import usePhantomWallet from "@/hook/usePhantomWallet";
@@ -28,6 +27,8 @@ import { validateDisplayName } from "./chat-messages-utils";
 import MessagesModals from "./message-box-components/messagesModals";
 import MessageInput from "./message-box-components/message-input";
 import MessageContainer from "./message-box-components/message-container";
+import { UserColorPalette } from "@/utils/user-color-palette";
+
 /**
  * MessageBox is a React component implementing a chat interface with various functionalities.
  * It supports chat commands, file attachments, message handling, and integration with Phantom Wallet.
@@ -80,10 +81,10 @@ const MessageBox = () => {
 
   // Handlers
   const [userlist, setUserList] = useState([
-    { name: "[Richard]", color: USER_HANDERLS[4] },
-    { name: "[Nicolas]", color: USER_HANDERLS[5] },
-    { name: "[Laura]", color: USER_HANDERLS[6] },
-    { name: "[Robert]", color: USER_HANDERLS[7] },
+    { name: "[Richard]", color: UserColorPalette[4] },
+    { name: "[Nicolas]", color: UserColorPalette[5] },
+    { name: "[Laura]", color: UserColorPalette[6] },
+    { name: "[Robert]", color: UserColorPalette[7] },
   ]);
 
   // status
@@ -101,8 +102,7 @@ const MessageBox = () => {
   const [InputFieldDisabled, setInputFieldDisabled] = useState(false);
   const { PhantomSessionApproved, isLoading } = usePhantomWallet();
 
-
-  // HANDLERS 
+  // HANDLERS
   useEffect(() => {
     // // Check if the browser is Safari
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -210,7 +210,7 @@ const MessageBox = () => {
     }
   };
 
-   /**
+  /**
    * Handles the Phantom Wallet connection process. If not on mobile, it calls
    * the `connectToPhantom` function to connect to the Phantom Wallet and if
    * successful, calls the `WalletChatUtils` function. If on mobile, it calls
@@ -285,7 +285,7 @@ const MessageBox = () => {
     }
   }, [sessionData, isVerifiedCode]);
 
-   /**
+  /**
    * InitialChatLoad function is called on initial chat load.
    * It takes the session type and renders the appropriate message.
    * If the session type is Standard, it renders a message moment and
@@ -372,7 +372,6 @@ const MessageBox = () => {
     event.target.value = "";
   };
 
-  
   /**
    * Handles the selection of a command from the command modal.
    * Updates the input field and command states based on the selected command.
@@ -411,7 +410,7 @@ const MessageBox = () => {
     setShowCommands(false);
   };
 
-   /**
+  /**
    * Verifies the input command and displays a list of commands or users if the command is valid.
    * If the command is "/remove", it checks if the input value exists in the userlist.
    * If the command is not "/remove", it checks if the input value exists in the commandlist.
@@ -446,7 +445,7 @@ const MessageBox = () => {
     }
   };
 
-   /**
+  /**
    * Handles changes to the input field.
    * If the input field is disabled, do nothing.
    * If the input starts with "/", reset command selections and validate the command.
@@ -593,7 +592,7 @@ const MessageBox = () => {
     }
   };
 
-    /**
+  /**
    * Handles the click event for the send button in the chat interface.
    *
    * - Verifies the security code before proceeding.
@@ -678,7 +677,6 @@ const MessageBox = () => {
     }
   };
 
-  
   /**
    * Handles the key down event for the chat input field.
    *
@@ -759,7 +757,7 @@ const MessageBox = () => {
     }
   };
 
-    /**
+  /**
    * Handles key up and down events for the command list.
    * If the command list is visible and the user presses the up or down arrow keys, the
    * selected index is updated accordingly.
@@ -838,7 +836,7 @@ const MessageBox = () => {
   // HANDLE SECNARIOS
 
   // 1 VERIFY SECURITY CODE. ELSE RETURN ERROR
- /**
+  /**
    * Verifies the security code entered by the user.
    * If the code is valid, it sets the isVerifiedCode flag to true and
    * adds a message moment to the chat log.
@@ -970,7 +968,7 @@ const MessageBox = () => {
     setinput("");
     scrollToBottom();
   };
- 
+
   const handleProjectModeExistQuestion = () => {
     if (input.toLowerCase() == "y") {
       handleProjectModeOfff();
@@ -1024,37 +1022,37 @@ const MessageBox = () => {
       {
         type: messageType.MM_NOTIFICATION,
         message: "Joined",
-        handlerColor: USER_HANDERLS[3],
+        handlerColor: UserColorPalette[3],
         handlerName: `[${input.slice(0, 18)}]`,
       },
       {
         type: messageType.MM_NOTIFICATION,
         message: "Joined",
-        handlerColor: USER_HANDERLS[4],
+        handlerColor: UserColorPalette[4],
         handlerName: "[Richard]",
       },
       {
         type: messageType.MM_NOTIFICATION,
         message: "Joined",
-        handlerColor: USER_HANDERLS[5],
+        handlerColor: UserColorPalette[5],
         handlerName: "[Nicolas]",
       },
       {
         type: messageType.MM_NOTIFICATION,
         message: "Joined",
-        handlerColor: USER_HANDERLS[6],
+        handlerColor: UserColorPalette[6],
         handlerName: "[Laura]",
       },
       {
         type: messageType.MM_NOTIFICATION,
         message: "Left",
-        handlerColor: USER_HANDERLS[8],
+        handlerColor: UserColorPalette[8],
         handlerName: "[William]",
       },
       {
         type: messageType.MM_NOTIFICATION,
         message: "Joined",
-        handlerColor: USER_HANDERLS[7],
+        handlerColor: UserColorPalette[7],
         handlerName: "[Robert]",
       },
       {

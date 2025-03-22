@@ -10,7 +10,7 @@ import CloudflareHeader from "./cloudflare-components/cloudflare-header";
 import MobileCloudFlare from "./cloudflare-components/mobile-cloudflare";
 import MobileDropdownModal from "./cloudflare-components/mobile-dropdown-modal";
 import NotificationTooltip from "./cloudflare-components/notification-tooltip";
-import { handleCopyText } from "@/dummy-data";
+import { CopyURL } from "@/utils/copy-url";
 export const cloudFlareRef = createRef(null);
 /**
  * Cloudflare component handles the generation and sharing of secure chat links.
@@ -89,7 +89,7 @@ const Cloudflare = () => {
   };
 
   const handleCopy = async () => {
-    const isSuccess = await handleCopyText(url, secureCode, urlType);
+    const isSuccess = await CopyURL(url, secureCode, urlType);
     if (isSuccess) {
       setCopyIsVisibleTooltip(false);
       toggleVisibility("copy");

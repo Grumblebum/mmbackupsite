@@ -7,37 +7,24 @@ import pin from "@/assets/icons/chat/pin.svg";
 import alert from "@/assets/icons/chat/red_alert.svg";
 import warning_sign from "@/assets/icons/chat/warning_sign.svg";
 import { chatContext } from "@/chat-context";
-import { messageType, USER_HANDERLS } from "@/dummy-data";
+import { messageType } from "@/dummy-data";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import Typed from "typed.js";
 import { getMessageClass } from "./chat-messages-utils";
 import useCheckIsMobileView from "@/hook/useCheckIsMobileView";
-
-/**
- * Renders a chat message with various types and styles based on the message type.
- * 
- * @param {Object} props - The properties for the message component.
- * @param {string} [props.type=messageType.GREETING] - The type of the message, determines the rendering style.
- * @param {Object} [props.attachmentFile={}] - The file attached to the message, if any.
- * @param {string} [props.handlerName="[MessageMoment.com]"] - The name of the handler displaying the message.
- * @param {string} [props.message="Welcome to MessageMoment.com, where your message only lasts a moment!"] - The message text to display.
- * @param {string} [props.handlerColor=USER_HANDERLS[3]] - The color used for the handler name text.
- * @param {string} [props.userNameColor=USER_HANDERLS[3]] - The color used for the user name text in certain message types.
- * 
- * @returns {JSX.Element} - The rendered message component.
- */
+import { UserColorPalette } from "@/utils/user-color-palette";
 
 const Message = ({
   type = messageType.GREETING,
   attachmentFile = {},
   handlerName = "[MessageMoment.com]",
   message = "Welcome to MessageMoment.com, where your message only lasts a moment!",
-  handlerColor = USER_HANDERLS[3],
-  userNameColor = USER_HANDERLS[3],
+  handlerColor = UserColorPalette[3],
+  userNameColor = UserColorPalette[3],
 }) => {
   const el = useRef(null);
-  const {isMessageMobileView:isMobileView}=useCheckIsMobileView();
+  const { isMessageMobileView: isMobileView } = useCheckIsMobileView();
   useEffect(() => {
     let typed;
     if (el.current) {
@@ -48,7 +35,7 @@ const Message = ({
       });
     }
     return () => {
-      if (typed) typed.destroy(); 
+      if (typed) typed.destroy();
     };
   }, []);
 
@@ -243,7 +230,7 @@ const Message = ({
             alignItems: "center",
             display: "flex",
             justifyContent: "space-between",
-            gap:"3px"
+            gap: "3px",
           }}
         >
           {message}
@@ -415,7 +402,7 @@ const Message = ({
       <>
         <p
           className={"chat-text handlertext"}
-          style={{ color: USER_HANDERLS[3] }}
+          style={{ color: UserColorPalette[3] }}
         >
           {handlerName}
         </p>{" "}
@@ -588,11 +575,14 @@ const Message = ({
       [messageType.ATTACHMENT_MESSAGE]: renderAttachmentMessage,
       [messageType.CHATGPT_RESPONSE]: renderChatgptResponse,
       [messageType.CHATGPT_INPUT]: renderChatgptInput,
-      [messageType.MM_NOTIFICATION_REMOVE_USER]: renderMessageMomentAlertRemoveUser,
+      [messageType.MM_NOTIFICATION_REMOVE_USER]:
+        renderMessageMomentAlertRemoveUser,
       [messageType.PHANTOM_WALLET]: renderPhantomPrompt,
     };
-  
-    return renderMap[type] ? renderMap[type]() : (
+
+    return renderMap[type] ? (
+      renderMap[type]()
+    ) : (
       <>
         <p className="chat-text handlertext" style={{ color: handlerColor }}>
           {handlerName}
@@ -605,7 +595,7 @@ const Message = ({
       </>
     );
   };
-  
+
   return (
     <div className="chat-msg-cont">
       <div
@@ -619,7 +609,7 @@ const Message = ({
         }}
         className={getMessageClass(type)}
       >
-       {renderMessageContent(type)}
+        {renderMessageContent(type)}
       </div>
     </div>
   );
