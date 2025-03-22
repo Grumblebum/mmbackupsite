@@ -1,7 +1,15 @@
 "use client";
-import sendBtn from "@/assets/icons/chat/sendBtn.svg";
-import sendBtnGrey from "@/assets/icons/chat/send_grey.svg";
-import { chatContext } from "@/chat-context";
+
+import React, { useEffect, useRef, useState } from "react";
+import {
+  isSafari as isSAF,
+  isAndroid,
+  isMobile,
+  isTablet,
+} from "react-device-detect";
+
+import { SessionTypeEnum } from "@/enums/session-type-enum";
+
 import {
   checkIsConnected,
   connectPhantomDeeplinking,
@@ -12,74 +20,34 @@ import {
   commandlist as listcommands,
   messageType,
   renderRemoveUserText,
-  SESSION_TYPE,
 } from "@/dummy-data";
-import useCheckIsMobileView from "@/hook/useCheckIsMobileView";
-import usePhantomWallet from "@/hook/usePhantomWallet";
-import { useEffect, useRef, useState } from "react";
-import {
-  isSafari as isSAF,
-  isAndroid,
-  isMobile,
-  isTablet,
-} from "react-device-detect";
+
+import { chatContext } from "@/chat-context";
+
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
+import usePhantomWallet from "@/hooks/usePhantomWallet";
+
 import { validateDisplayName } from "./chat-messages-utils";
 import MessagesModals from "./message-box-components/messagesModals";
 import MessageInput from "./message-box-components/message-input";
 import MessageContainer from "./message-box-components/message-container";
+
 import { UserColorPalette } from "@/utils/user-color-palette";
 
-/**
- * MessageBox is a React component implementing a chat interface with various functionalities.
- * It supports chat commands, file attachments, message handling, and integration with Phantom Wallet.
- * The component maintains several states for user input, commands, chat messages, and UI behavior.
- * It also handles mobile-specific features and device detection, including Safari browser adjustments.
- * The chat interface supports project modes, user management, and security code verification.
- */
+import sendBtn from "@/assets/icons/chat/sendBtn.svg";
+import sendBtnGrey from "@/assets/icons/chat/send_grey.svg";
 
 const MessageBox = () => {
-  // context
-  const {
-    setShowUploadModal,
-    setFiledata,
-    showAttachment,
-    setIsProjectModeOn,
-    setShowChatLeaveModal,
-    setShowAttachment,
-    sessionData,
-    filedata,
-    setExpiryTime,
-    setIsVerifiedCode,
-    isVerifiedCode,
-    isProjectModeOn,
-    setConnectWalletFunction,
-    setIsWalletConnected,
-    isWalletConnected,
-    setIsWalletExist,
-  } = chatContext();
-  // Ref's
-  const fileInputRef = useRef(null);
-  const commandModalRef = useRef();
-  const messageContainerRef = useRef(null);
-  // states
   const [input, setinput] = useState("");
   const [commandlist, setCommandsList] = useState(listcommands);
   const [selectedCommands, setSelectedCommands] = useState("");
   const [chatMessage, setChatMessages] = useState([]);
   const [handlerName, setHandlerName] = useState("");
-
-  // ASK QUESTION'
-  const [askHanderName, setAskHandlerName] = useState(false); // 1
-  const [askProjectMode, setAskprojectMode] = useState(false); // 2
-  const [askExitProjectMode, setAskExistProjectMode] = useState(false); //3
-  const [askRemoveUser, setAskRemoveUser] = useState(false); //4
-
-  // Verify status states
-  const { isMobileView } = useCheckIsMobileView();
   const [removeUserName, setRemoveUserName] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
-
-  // Handlers
+  const [KeyboardType, setKeyboardType] = useState("text");
+  const [selectedColor, setSelectedColor] = useState("");
   const [userlist, setUserList] = useState([
     { name: "[Richard]", color: UserColorPalette[4] },
     { name: "[Nicolas]", color: UserColorPalette[5] },
@@ -87,24 +55,42 @@ const MessageBox = () => {
     { name: "[Robert]", color: UserColorPalette[7] },
   ]);
 
-  // status
+  // ASK QUESTIONS STATES
+  const [askHanderName, setAskHandlerName] = useState(false); // 1
+  const [askProjectMode, setAskprojectMode] = useState(false); // 2
+  const [askExitProjectMode, setAskExistProjectMode] = useState(false); //3
+  const [askRemoveUser, setAskRemoveUser] = useState(false); //4
+
+  // VERIFY STATUS STATES
   const [isExpiryTimeExist, setIsExpiryTimeExist] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isTimerCommand, setIsTimerCommand] = useState(false);
-  const [spaceAdded, setSpaceAdded] = useState(false);
-  const [showCommands, setShowCommands] = useState(false);
   const [isChatLock, setIsChatLock] = useState(false);
   const [isSafari, setIsSafari] = useState(false);
-  const [KeyboardType, setKeyboardType] = useState("text");
   const [isRemoveCommand, setIsRemoveCommand] = useState(false);
-  const [selectedColor, setSelectedColor] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
+  const [spaceAdded, setSpaceAdded] = useState(false);
+  const [showCommands, setShowCommands] = useState(false);
   const [InputFieldDisabled, setInputFieldDisabled] = useState(false);
+
+  const { setIsProjectModeOn, sessionData, setExpiryTime, isProjectModeOn } =
+    chatContext();
+
+  const fileInputRef = useRef(null);
+  const commandModalRef = useRef();
+  const messageContainerRef = useRef(null);
+
+  const {
+    isWalletConnected,
+    showAttachment,
+    filedata,
+    isVerifiedCode,
+    updateState,
+  } = useChatSystemContext();
+  const { isMobileView } = useCheckIsMobileView();
   const { PhantomSessionApproved, isLoading } = usePhantomWallet();
 
-  // HANDLERS
   useEffect(() => {
-    // // Check if the browser is Safari
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     if (!isSafari) return;
     if (!isMobile) return;
@@ -131,9 +117,9 @@ const MessageBox = () => {
 
   useEffect(() => {
     if (!isPhantomExist() && !isMobileView) {
-      setIsWalletExist(false);
+      updateState("isWalletExist", false);
     } else {
-      setIsWalletExist(true);
+      updateState("isWalletExist", true);
     }
     // // Check if the browser is Safari
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -152,7 +138,7 @@ const MessageBox = () => {
   }, [isMobileView]);
 
   useEffect(() => {
-    if (sessionData.type == "Wallet") {
+    if (sessionData.type == SessionTypeEnum.WALLET) {
       if (isWalletConnected) {
         setInputFieldDisabled(false);
       } else {
@@ -160,7 +146,6 @@ const MessageBox = () => {
       }
     }
   }, [isWalletConnected]);
-  // ===========  connectWallet ============= //
 
   useEffect(() => {
     if (PhantomSessionApproved) {
@@ -168,71 +153,9 @@ const MessageBox = () => {
     }
   }, [PhantomSessionApproved]);
 
-  const WalletChatUtils = () => {
-    if (isMobileView) {
-      setIsWalletConnected(true);
-      setAskHandlerName(true);
-      setChatMessages([
-        ...chatMessage,
-        {
-          type: messageType.PHANTOM_WALLET,
-          handlerName: messageType.MESSAGE_MOMENT,
-        },
-        {
-          type: messageType.MESSAGE_MOMENT,
-          handlerName: "",
-        },
-        {
-          type: messageType.MM_ERROR_MSG,
-          message:
-            "The chat session is full! There are currently 10/10 users joined.",
-        },
-      ]);
-    } else {
-      setIsWalletConnected(true);
-      setAskHandlerName(true);
-      setChatMessages([
-        ...chatMessage,
-        {
-          type: messageType.PHANTOM_WALLET,
-          handlerName: messageType.MESSAGE_MOMENT,
-        },
-        {
-          type: messageType.MESSAGE_MOMENT,
-          handlerName: "",
-        },
-        {
-          type: messageType.MM_ERROR_MSG,
-          message:
-            "The chat session is full! There are currently 10/10 users joined.",
-        },
-      ]);
-    }
-  };
-
-  /**
-   * Handles the Phantom Wallet connection process. If not on mobile, it calls
-   * the `connectToPhantom` function to connect to the Phantom Wallet and if
-   * successful, calls the `WalletChatUtils` function. If on mobile, it calls
-   * the `connectPhantomDeeplinking` function to open the Phantom Wallet app.
-   */
-  const handlePhantomConnection = async () => {
-    if (!isMobileView) {
-      if (!isPhantomExist()) {
-        return;
-      }
-      const publicKey = await connectToPhantom();
-      if (publicKey) {
-        WalletChatUtils();
-      }
-    } else {
-      connectPhantomDeeplinking();
-    }
-  };
-
   useEffect(() => {
-    setConnectWalletFunction(() => handlePhantomConnection);
-  }, [setConnectWalletFunction, isMobileView]);
+    updateState("connectWalletFunction", () => handlePhantomConnection);
+  }, []);
 
   useEffect(() => {
     if (input == "") {
@@ -276,36 +199,27 @@ const MessageBox = () => {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // VALIDATION REGEX
   useEffect(() => {
-    if (sessionData?.type == "Secure" && !isVerifiedCode) {
+    if (sessionData?.type == SessionTypeEnum.SECURE && !isVerifiedCode) {
       setKeyboardType("number");
     } else {
       setKeyboardType("text");
     }
   }, [sessionData, isVerifiedCode]);
 
-  /**
-   * InitialChatLoad function is called on initial chat load.
-   * It takes the session type and renders the appropriate message.
-   * If the session type is Standard, it renders a message moment and
-   * and an error message saying the chat session is full.
-   * If the session type is Wallet, it renders a message moment with a
-   * phantom wallet message.
-   * If the session type is Secure, it renders a security code message.
-   * Then it sets the ask handler name flag to true if the session type
-   * is Standard.
-   */
-  const InitialChatLoad = () => {
-    if (sessionData?.type === "Standard") {
+  const WalletChatUtils = () => {
+    if (isMobileView) {
+      updateState("isWalletConnected", true);
+      setAskHandlerName(true);
       setChatMessages([
         ...chatMessage,
         {
-          type:
-            sessionData?.type == "Standard"
-              ? messageType.MESSAGE_MOMENT
-              : messageType.SECURITY_CODE,
-          handlerName: sessionData?.type == "Secure" && " ",
+          type: messageType.PHANTOM_WALLET,
+          handlerName: messageType.MESSAGE_MOMENT,
+        },
+        {
+          type: messageType.MESSAGE_MOMENT,
+          handlerName: "",
         },
         {
           type: messageType.MM_ERROR_MSG,
@@ -313,7 +227,60 @@ const MessageBox = () => {
             "The chat session is full! There are currently 10/10 users joined.",
         },
       ]);
-    } else if (sessionData?.type === "Wallet") {
+    } else {
+      updateState("isWalletConnected", true);
+      setAskHandlerName(true);
+      setChatMessages([
+        ...chatMessage,
+        {
+          type: messageType.PHANTOM_WALLET,
+          handlerName: messageType.MESSAGE_MOMENT,
+        },
+        {
+          type: messageType.MESSAGE_MOMENT,
+          handlerName: "",
+        },
+        {
+          type: messageType.MM_ERROR_MSG,
+          message:
+            "The chat session is full! There are currently 10/10 users joined.",
+        },
+      ]);
+    }
+  };
+
+  const handlePhantomConnection = async () => {
+    if (!isMobileView) {
+      if (!isPhantomExist()) {
+        return;
+      }
+      const publicKey = await connectToPhantom();
+      if (publicKey) {
+        WalletChatUtils();
+      }
+    } else {
+      connectPhantomDeeplinking();
+    }
+  };
+
+  const InitialChatLoad = () => {
+    if (sessionData?.type === SessionTypeEnum.STANDARD) {
+      setChatMessages([
+        ...chatMessage,
+        {
+          type:
+            sessionData?.type == SessionTypeEnum.STANDARD
+              ? messageType.MESSAGE_MOMENT
+              : messageType.SECURITY_CODE,
+          handlerName: sessionData?.type == SessionTypeEnum.SECURE && " ",
+        },
+        {
+          type: messageType.MM_ERROR_MSG,
+          message:
+            "The chat session is full! There are currently 10/10 users joined.",
+        },
+      ]);
+    } else if (sessionData?.type === SessionTypeEnum.WALLET) {
       setChatMessages([
         ...chatMessage,
         {
@@ -326,15 +293,15 @@ const MessageBox = () => {
         ...chatMessage,
         {
           type:
-            sessionData?.type == "Standard"
+            sessionData?.type == SessionTypeEnum.STANDARD
               ? messageType.MESSAGE_MOMENT
               : messageType.SECURITY_CODE,
-          handlerName: sessionData?.type == "Secure" && " ",
+          handlerName: sessionData?.type == SessionTypeEnum.SECURE && " ",
         },
       ]);
     }
 
-    if (sessionData?.type == "Standard") {
+    if (sessionData?.type == SessionTypeEnum.STANDARD) {
       setAskHandlerName(true);
     }
   };
@@ -349,21 +316,25 @@ const MessageBox = () => {
       }, 20);
     }
   };
+
   const openFilePopup = () => {
     fileInputRef.current.click();
     if (showAttachment) {
-      setShowAttachment(false);
+      updateState("showAttachment", false);
     }
   };
-  // Handle file selection
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       setinput("");
-      setShowUploadModal(true);
+
+      updateState("showUploadModal", true);
+
       const fileName = file.name;
       const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2); // Size in MB
-      setFiledata({
+
+      updateState("filedata", {
         name: fileName,
         size: fileSizeInMB,
         type: fileName.split(".").pop().toLowerCase(),
@@ -372,17 +343,6 @@ const MessageBox = () => {
     event.target.value = "";
   };
 
-  /**
-   * Handles the selection of a command from the command modal.
-   * Updates the input field and command states based on the selected command.
-   *
-   * @param {string} text - The selected command text.
-   *
-   * If the command is "/timer" or "/mm", appends a space to the command
-   * and hides the command modal. Sets the spaceAdded state to true.
-   * If the command is "/remove", appends a space to the command and
-   * hides the command modal. Sets the isRemoveCommand state to true after a delay.
-   */
   const handleSelectedCommand = (text) => {
     setSelectedCommands(text);
     setinput(text);
@@ -410,12 +370,6 @@ const MessageBox = () => {
     setShowCommands(false);
   };
 
-  /**
-   * Verifies the input command and displays a list of commands or users if the command is valid.
-   * If the command is "/remove", it checks if the input value exists in the userlist.
-   * If the command is not "/remove", it checks if the input value exists in the commandlist.
-   * @param {string} value - The input command value.
-   */
   const verifyInputCommand = (value) => {
     if (isRemoveCommand) {
       let val = value.split(" ")[1];
@@ -445,31 +399,11 @@ const MessageBox = () => {
     }
   };
 
-  /**
-   * Handles changes to the input field.
-   * If the input field is disabled, do nothing.
-   * If the input starts with "/", reset command selections and validate the command.
-   * If the command is "/remove", check if the input value exists in the userlist.
-   * If the command is not "/remove", check if the input value exists in the commandlist.
-   * If the input is empty, reset the state.
-   * If the user is in a Secure session, validate the Secure Code.
-   * If the user is in a Secure session and the code is invalid, disable the input field.
-   * If the user is in a Secure session and the code is valid, enable the input field.
-   * If the user is in a Project or Share session, validate the display name.
-   * If the user is in a Project or Share session and the display name is invalid, disable the input field.
-   * If the user is in a Project or Share session and the display name is valid, enable the input field.
-   * If the input starts with "/timer", only add space if it’s exactly "/timer" and space hasn’t been added yet.
-   * If the input starts with "/remove", only add space if it’s exactly "/remove" and space hasn’t been added yet.
-   * If the input starts with "/mm", only add space if it’s exactly "/mm" and space hasn’t been added yet.
-   * If the user removes space, reset the spaceAdded flag.
-   * If the user removes space and it was previously a timer command, reset the timer command flag.
-   * If the user removes space and it was previously a remove command, reset the remove command flag.
-   */
   const handleInputChange = (e) => {
     if (InputFieldDisabled) return;
     let value = e.target.value;
     if (value !== "") {
-      // Reset command selections
+      // RESET COMMAND SELECTIONS
       if (value.startsWith("/")) {
         if (handlerName.trim() !== "") {
           setinput(value);
@@ -481,9 +415,9 @@ const MessageBox = () => {
         setSelectedCommands("");
         setIsTimerCommand(false);
       }
-      // Validate Secure Code
-      if (sessionData?.type === SESSION_TYPE.Secure && !isVerifiedCode) {
-        // const numberOnlyRegex = /^[0-9]{4}$/;
+
+      // VALIDATE SECURE CODE
+      if (sessionData?.type === SessionTypeEnum.SECURE && !isVerifiedCode) {
         const numberOnlyRegex = /^(?!.*[.eE])[0-9]{4}$/;
 
         if (numberOnlyRegex.test(value.slice(0, 4))) {
@@ -495,9 +429,7 @@ const MessageBox = () => {
         }
       }
 
-      // Validate Secure Code
-
-      // Display Name
+      // DISPLAY NAME
       if (askHanderName && value.trim() !== "" && value.slice(0, 15)) {
         const isValidate = validateDisplayName(value.slice(0, 15));
         if (isValidate == "All Good!") {
@@ -508,8 +440,6 @@ const MessageBox = () => {
           setinput(value.slice(0, 15));
         }
       }
-
-      // Validate DisplayName
 
       // Check if the input starts with "/"
       if (value.startsWith("/") && handlerName.trim() !== "") {
@@ -592,32 +522,6 @@ const MessageBox = () => {
     }
   };
 
-  /**
-   * Handles the click event for the send button in the chat interface.
-   *
-   * - Verifies the security code before proceeding.
-   * - Sends a message if the input is not empty and does not start with a command prefix ('/').
-   *   - If an attachment is present, it checks for file attachment.
-   *   - Otherwise, adds the input as a normal chat message.
-   * - Resets command states after sending a message or executing a command.
-   * - Handles various command inputs starting with '/' including:
-   *   - Timer command
-   *   - Transfer command
-   *   - Project mode toggles (on/off)
-   *   - Leave command
-   *   - ChatGPT command
-   *   - Chat lock/unlock
-   *   - Download chat
-   *   - Remove user
-   * - Scrolls to the bottom of the chat after sending a message.
-   */
-
-  /**
-   * Handles the logic for sending a chat message.
-   * @function
-   * @param {boolean} [verifySecurityCode=true] - Whether to verify the security code before sending the message.
-   * @returns {void}
-   */
   const handleClickSendBtn = () => {
     if (verifySecurityCode()) {
       if (input.trim() !== "" && !input.startsWith("/")) {
@@ -677,27 +581,8 @@ const MessageBox = () => {
     }
   };
 
-  /**
-   * Handles the key down event for the chat input field.
-   *
-   * - Prevents certain invalid characters if the session type is secure
-   *   and the security code is not verified.
-   * - Calls `handleKeyUpAndDown` for keys other than "Enter".
-   * - On "Enter" key press:
-   *   - If an item is selected in the command modal, calls `handleKeyUpAndDown`.
-   *   - If the input is not empty and does not start with a command, sends the message.
-   *   - Handles various command inputs starting with '/' including:
-   *     - Timer command
-   *     - Transfer command
-   *     - Project mode toggles (on/off)
-   *     - Leave command
-   *     - ChatGPT command
-   *     - Chat lock/unlock
-   *     - Download chat
-   *     - Remove user
-   */
   const handleKeyDown = (event) => {
-    if (sessionData?.type === SESSION_TYPE.Secure && !isVerifiedCode) {
+    if (sessionData?.type === SessionTypeEnum.SECURE && !isVerifiedCode) {
       if (
         event.keyCode === 69 ||
         event.keyCode === 189 ||
@@ -757,15 +642,6 @@ const MessageBox = () => {
     }
   };
 
-  /**
-   * Handles key up and down events for the command list.
-   * If the command list is visible and the user presses the up or down arrow keys, the
-   * selected index is updated accordingly.
-   * If the user presses Enter while the command list is visible, the selected command is
-   * executed and the command list is closed.
-   * If the user presses Tab while the command list is visible, the input is autocompleted
-   * with the first matching command or user.
-   */
   const handleKeyUpAndDown = (e) => {
     if (!showCommands) return; // Do nothing if the command list is not visible
     if (e.key === "ArrowDown") {
@@ -833,21 +709,8 @@ const MessageBox = () => {
     }
   };
 
-  // HANDLE SECNARIOS
-
-  // 1 VERIFY SECURITY CODE. ELSE RETURN ERROR
-  /**
-   * Verifies the security code entered by the user.
-   * If the code is valid, it sets the isVerifiedCode flag to true and
-   * adds a message moment to the chat log.
-   * If the code is invalid, it adds an error message to the chat log.
-   * If the session is not Secure, it will return true.
-   * If the user has not entered a code, it will return false.
-   * @returns {boolean} true if the code is valid, false if not.
-   */
   const verifySecurityCode = () => {
-    if (sessionData?.type === SESSION_TYPE.Secure && !isVerifiedCode) {
-      // const numberOnlyRegex = /^[0-9]{4}$/;
+    if (sessionData?.type === SessionTypeEnum.SECURE && !isVerifiedCode) {
       const numberOnlyRegex = /^(?!.*[.eE])[0-9]{4}$/;
 
       if (!numberOnlyRegex.test(input)) return;
@@ -874,11 +737,11 @@ const MessageBox = () => {
         scrollToBottom();
         setinput("");
         setTimeout(() => {
-          setIsVerifiedCode(true);
+          updateState("isVerifiedCode", true);
           return true;
         }, 2000);
       } else {
-        setIsVerifiedCode(false);
+        updateState("isVerifiedCode", false);
         setChatMessages([
           ...chatMessage,
           {
@@ -907,13 +770,6 @@ const MessageBox = () => {
     }
   };
 
-  // Handler Ask Question
-  /**
-   * Handles the Ask Remove User question by verifying the username entered by the user.
-   * If the username is valid, it sets the askRemoveUser flag to true and adds a message moment
-   * to the chat log with the username and color of the user to be removed.
-   * If the username is invalid, it does nothing.
-   */
   const handleAskRemoveUserQuestion = () => {
     const username = input.split(" ")[1];
     if (!username) return;
@@ -986,6 +842,7 @@ const MessageBox = () => {
       setinput("");
     }
   };
+
   const handleUserName = () => {
     const username = input.trim();
     console.log("display name --", validateDisplayName(username));
@@ -1074,7 +931,6 @@ const MessageBox = () => {
     }
   };
 
-  // HANDLE COMMANDS
   const handleRemoveUser = () => {
     setChatMessages([
       ...chatMessage,
@@ -1222,17 +1078,18 @@ const MessageBox = () => {
           },
         },
       ]);
-      setShowAttachment(false);
+      updateState("showAttachment", false);
       setinput("");
       scrollToBottom();
     }
   };
 
   const handleChatLeaveCommand = () => {
-    setShowChatLeaveModal(true);
+    updateState("showChatLeaveModal", true);
     setinput("");
     setShowCommands(false);
   };
+
   const handleProjectOnCommand = () => {
     const list = commandlist.filter(
       (item) => item != "/project on" && item != "/timer"
@@ -1327,6 +1184,7 @@ const MessageBox = () => {
         isLandscape={isLandscape}
         isMobileView={isMobileView}
       />
+
       <MessageContainer
         chatMessage={chatMessage}
         messageContainerRef={messageContainerRef}
@@ -1338,6 +1196,7 @@ const MessageBox = () => {
         isAndroid={isAndroid}
         messageType={messageType}
       />
+
       <MessageInput
         InputFieldDisabled={InputFieldDisabled}
         showAttachment={showAttachment}

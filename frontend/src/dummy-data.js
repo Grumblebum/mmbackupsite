@@ -338,11 +338,6 @@ export const Faqcommandlist = [
   "/remove",
 ];
 
-export const SESSION_TYPE = {
-  Standard: "Standard",
-  Secure: "Secure",
-};
-
 export const reason_options = [
   {
     title: "Inappropiate Content",

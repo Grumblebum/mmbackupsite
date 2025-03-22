@@ -1,25 +1,31 @@
-import Session from "@/components/session/session";
 import React, { useState } from "react";
-import conversation from "@/assets/icons/chat/conversation.svg";
-import Button from "@/components/button";
-import { chatContext } from "@/chat-context";
 import { useRouter } from "next/navigation";
-import useCheckIsMobileView from "@/hook/useCheckIsMobileView";
 import Image from "next/image";
+
+import { chatContext } from "@/chat-context";
+
+import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+
+import Session from "@/components/session/session";
+import Button from "@/components/button";
+
+import conversation from "@/assets/icons/chat/conversation.svg";
 import Blur from "@/assets/images/blur.png";
 
 const ChatLeaveModal = () => {
-  const router = useRouter();
-  const { showChatLeaveModal, setShowChatLeaveModal,setIsWalletConnected } = chatContext();
   const [isClosing, setisClosing] = useState(false);
+
+  const router = useRouter();
   const { isMobileView } = useCheckIsMobileView();
+  const { showChatLeaveModal, updateState } = useChatSystemContext();
+
   return (
     <div className={`chatLeaveModal ${showChatLeaveModal && "open-fade"}`}>
       <div className={`chatSession-container ${isClosing && "fade-out"}`}>
-      
         {isMobileView ? (
           <>
-            <Image src={Blur} className="blur-img" alt="Blur"/>
+            <Image src={Blur} className="blur-img" alt="Blur" />
             <div className="chat-leave-mobile-container">
               <Image src={conversation} alt="conversation-img" />
               <h4>
@@ -38,7 +44,7 @@ const ChatLeaveModal = () => {
                   onClick={() => {
                     setisClosing(true);
                     setTimeout(() => {
-                      setShowChatLeaveModal(false);
+                      updateState("showChatLeaveModal", false);
                       setisClosing(false);
                     }, 300);
                   }}
@@ -50,9 +56,9 @@ const ChatLeaveModal = () => {
                   className="btn-primary text-white header-btn btn-leave"
                   onClick={() => {
                     setisClosing(true);
-                    setIsWalletConnected(false)
+                    updateState("isWalletConnected", false);
                     setTimeout(() => {
-                      setShowChatLeaveModal(false);
+                      updateState("showChatLeaveModal", false);
                     }, 300);
                     setTimeout(() => {
                       router.push("/");
@@ -86,7 +92,7 @@ const ChatLeaveModal = () => {
                   onClick={() => {
                     setisClosing(true);
                     setTimeout(() => {
-                      setShowChatLeaveModal(false);
+                      updateState("showChatLeaveModal", false);
                       setisClosing(false);
                     }, 300);
                   }}
@@ -98,9 +104,9 @@ const ChatLeaveModal = () => {
                   className="btn-primary text-white header-btn btn-leave"
                   onClick={() => {
                     setisClosing(true);
-                    setIsWalletConnected(false)
+                    updateState("isWalletConnected", false);
                     setTimeout(() => {
-                      setShowChatLeaveModal(false);
+                      updateState("showChatLeaveModal", false);
                     }, 300);
                     setTimeout(() => {
                       router.push("/");

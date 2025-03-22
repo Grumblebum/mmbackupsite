@@ -1,11 +1,13 @@
 import ClipboardJS from "clipboard";
 
+import { SessionTypeEnum } from "@/enums/session-type-enum";
+
 export const CopyURL = async (url, secureCode, urlType) => {
   return new Promise((resolve, reject) => {
     try {
       let isSuccess = false;
       const textToCopy =
-        urlType === "Secure" && url
+        urlType === SessionTypeEnum.SECURE && url
           ? `${url}\n\nSecurity Code: ${secureCode}`
           : url;
       if (textToCopy) {

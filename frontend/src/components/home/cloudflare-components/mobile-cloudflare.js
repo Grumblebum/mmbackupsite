@@ -1,5 +1,15 @@
+"use client";
+
+import React, { forwardRef, useState } from "react";
 import Image from "next/image";
-import React, { forwardRef } from "react";
+import { Spin } from "antd";
+
+import { SessionTypeEnum } from "@/enums/session-type-enum";
+
+import { chatContext } from "@/chat-context";
+
+import CustomTurnstile from "@/components/custom-turnstile";
+
 import globe from "@/assets/icons/globe.svg";
 import lock from "@/assets/icons/secure.svg";
 import wallet from "@/assets/icons/wallet.svg";
@@ -10,10 +20,8 @@ import qrcodeGray from "@/assets/icons/qrcode-grey.svg";
 import qrcode from "@/assets/icons/qrcode.svg";
 import copyGray from "@/assets/icons/copy-grey.svg";
 import copy from "@/assets/icons/copy.svg";
-import { chatContext } from "@/chat-context";
-import CustomTurnstile from "@/components/custom-turnstile";
-import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+
 const MobileCloudFlare = forwardRef(
   (
     {
@@ -34,12 +42,9 @@ const MobileCloudFlare = forwardRef(
     },
     ref
   ) => {
-    const {
-      setSessionData,
-      sessionData,
-      setIsLoadingGenerateLink,
-      isLoadingGenerateLink,
-    } = chatContext();
+    const [isLoadingGenerateLink, setIsLoadingGenerateLink] = useState(false);
+
+    const { setSessionData, sessionData } = chatContext();
 
     const handleOnGenerateLink = () => {
       if (!url) {
@@ -73,9 +78,9 @@ const MobileCloudFlare = forwardRef(
             >
               <Image
                 src={
-                  selectedOption == "Standard"
+                  selectedOption == SessionTypeEnum.STANDARD
                     ? globe
-                    : selectedOption == "Wallet"
+                    : selectedOption == SessionTypeEnum.WALLET
                     ? wallet
                     : lock
                 }
@@ -92,7 +97,7 @@ const MobileCloudFlare = forwardRef(
               <p className="small">{url}</p>
             </div>
           </div>
-          {selectedOption == "Secure" && (
+          {selectedOption == SessionTypeEnum.SECURE && (
             <div className="cloudflare-header flex-center">
               <Image src={lock} alt="globe" />
               <p className="small">{url && secureCode}</p>

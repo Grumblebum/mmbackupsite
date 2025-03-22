@@ -1,8 +1,15 @@
 "use client";
-import { createRef, useEffect, useRef, useState } from "react";
-import { chatContext } from "@/chat-context";
+
+import React, { createRef, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isFirefox } from "react-device-detect";
+
+import { SessionTypeEnum } from "@/enums/session-type-enum";
+
+import { chatContext } from "@/chat-context";
+
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+
 import MobileQrScannerModal from "./cloudflare-components/Qr-scanner-mobile-modal";
 import CloudflareBody from "./cloudflare-components/cloudflare-body";
 import CloudflareFooter from "./cloudflare-components/cloudflare-footer";
@@ -10,59 +17,62 @@ import CloudflareHeader from "./cloudflare-components/cloudflare-header";
 import MobileCloudFlare from "./cloudflare-components/mobile-cloudflare";
 import MobileDropdownModal from "./cloudflare-components/mobile-dropdown-modal";
 import NotificationTooltip from "./cloudflare-components/notification-tooltip";
+
 import { CopyURL } from "@/utils/copy-url";
+
 export const cloudFlareRef = createRef(null);
-/**
- * Cloudflare component handles the generation and sharing of secure chat links.
- * It manages state for various UI elements including tooltips, modals, and notifications.
- * Utilizes `useEffect` to detect browser type and window size changes for responsive design.
- *
- * - Initializes chat session data and browser detection on mount.
- * - Handles visibility toggles for notifications and tooltips.
- * - Manages dropdown and modal interactions for selecting chat types.
- * - Generates random URLs and security codes for chat sessions.
- * - Integrates with `ClipboardJS` for copying links and leverages `Turnstile` for security verification.
- *
- * Note: To run Cloudflare locally, set `IsCfVerified` to true and bypass the Turnstile error handling.
- */
 
 const Cloudflare = () => {
+  const [loading, setLoading] = useState(true);
+  const [isLoadingGenerateLink, setIsLoadingGenerateLink] = useState(false);
+
+  const [url, setUrl] = useState("");
+  const [urlType, setUrlType] = useState("");
+  const [secureCode, setSecureCode] = useState("");
+  const [selectedOption, setSelectedOption] = useState(
+    SessionTypeEnum.STANDARD
+  );
+  const [QrVisible, setQrVisisble] = useState(false);
+  const [notificationtype, setNotificationType] = useState("reg");
+  const [open, setOpen] = useState(false);
+  const [openMobileModal, setOpenMobileModal] = useState(false);
+  const [openQrMobileModal, setOpenQrMobileModal] = useState(false);
+
+  const [IsCfVerified, setIsCfVerified] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isVisibleTooltip, setIsVisibleTooltip] = useState(false);
+  const [isCopyVisibleTooltip, setCopyIsVisibleTooltip] = useState(false);
+  const [isQrVisibleTooltip, setQrIsVisibleTooltip] = useState(false);
+
+  const { setSessionData, sessionData } = chatContext();
+
   const router = useRouter();
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
   const mobileModalRef = useRef(null);
-  // contenxt
-  const {
-    setSessionData,
-    sessionData,
-    setIsWalletConnected,
-    setdropdownSelected,
-    setIsLoadingGenerateLink,
-  } = chatContext();
-  // stats
-  const [loading, setLoading] = useState(true);
-  const [url, setUrl] = useState("");
-  const [urlType, setUrlType] = useState("");
-  const [secureCode, setSecureCode] = useState("");
-  const [open, setOpen] = useState(false);
-  const [IsCfVerified, setIsCfVerified] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [notificationtype, setNotificationType] = useState("reg");
-  const [isVisibleTooltip, setIsVisibleTooltip] = useState(false);
-  const [isCopyVisibleTooltip, setCopyIsVisibleTooltip] = useState(false);
-  const [isQrVisibleTooltip, setQrIsVisibleTooltip] = useState(false);
-  const [QrVisible, setQrVisisble] = useState(false);
-  const [openMobileModal, setOpenMobileModal] = useState(false);
-  const [openQrMobileModal, setOpenQrMobileModal] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("Standard");
+
+  const { updateState } = useChatSystemContext();
 
   useEffect(() => {
-    setIsWalletConnected(false);
+    updateState("isWalletConnected", false);
     setSessionData((prev) => ({
       ...prev,
-      type: "Standard",
+      type: SessionTypeEnum.STANDARD,
     }));
   }, [isFirefox]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleVisibility = (type) => {
     if (!isVisible) {
@@ -120,12 +130,6 @@ const Cloudflare = () => {
     return result;
   }
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-  }, []);
-
   const handleRegenrateClick = () => {
     setIsLoadingGenerateLink(true);
     setTimeout(() => {
@@ -161,6 +165,7 @@ const Cloudflare = () => {
       }
     }
   };
+
   const onQrChange = (val) => {
     if (val) {
       setQrIsVisibleTooltip(false);
@@ -180,8 +185,8 @@ const Cloudflare = () => {
     }));
     setSelectedOption(option);
     setOpen(false);
-    setdropdownSelected(option);
-    // close mobile modal if its true
+    updateState("dropdownSelected", option);
+
     if (openMobileModal) setOpenMobileModal((prev) => !prev);
   };
 
@@ -201,12 +206,6 @@ const Cloudflare = () => {
       setOpenQrMobileModal(false);
     }
   };
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <>
@@ -227,11 +226,12 @@ const Cloudflare = () => {
         setOpenQrMobileModal={setOpenQrMobileModal}
         url={url}
       />
+
       {/* CloudFlare Section start For Mobile & Desktop UI */}
       <section
         ref={cloudFlareRef}
         className={`cloud-flare ${
-          selectedOption == "Secure" ? "secure" : "default"
+          selectedOption == SessionTypeEnum.SECURE ? "secure" : "default"
         }`}
       >
         <CloudflareHeader />
@@ -258,6 +258,7 @@ const Cloudflare = () => {
             url,
           }}
         />
+
         {/* *** Desktop cloudfalre body *** */}
         <div className="bottom">
           <CloudflareBody

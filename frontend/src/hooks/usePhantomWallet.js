@@ -1,10 +1,13 @@
-import { chatContext } from "@/chat-context";
 import { useEffect, useState } from "react";
+
+import { chatContext } from "@/chat-context";
 
 const usePhantomWallet = () => {
   const [PhantomSessionApproved, setPhantomSession] = useState(false);
-  const { setSessionData } = chatContext();
   const [isLoading, setLoading] = useState(true);
+
+  const { setSessionData } = chatContext();
+
   useEffect(() => {
     // Get the query parameters from the URL
     try {
@@ -15,32 +18,32 @@ const usePhantomWallet = () => {
       const data = queryParams.get("data");
 
       if (phantomKey && nonce && data) {
-        setLoading(false)
+        setLoading(false);
         setSessionData((prev) => ({
           ...prev,
-          type: "Wallet",
+          type: SessionTypeEnum.WALLET,
         }));
         setPhantomSession(true);
       } else if (phantomError) {
         setSessionData((prev) => ({
           ...prev,
-          type: "Wallet",
+          type: SessionTypeEnum.WALLET,
         }));
         setPhantomSession(false);
       } else {
         setPhantomSession(false);
       }
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
       console.log("Error", error);
       setPhantomSession(false);
-      setLoading(false)
+      setLoading(false);
     }
   }, []);
 
   return {
     PhantomSessionApproved,
-    isLoading
+    isLoading,
   };
 };
 

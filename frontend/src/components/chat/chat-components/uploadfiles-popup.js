@@ -1,15 +1,18 @@
-import cross from "@/assets/icons/chat/cross.svg";
-import uploadfile from "@/assets/icons/chat/uploadfile.svg";
-import { chatContext } from "@/chat-context";
-import { getUploadIconType } from "@/dummy-data";
+import React, { useEffect, useState } from "react";
 import { Progress } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+
+import { getUploadIconType } from "@/dummy-data";
+
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+
+import cross from "@/assets/icons/chat/cross.svg";
+import uploadfile from "@/assets/icons/chat/uploadfile.svg";
 
 const UploadFilePopup = () => {
-  const { showUploadModal, setShowUploadModal, filedata, setShowAttachment } =
-    chatContext();
   const [percentage, setPercentage] = useState(0);
+
+  const { filedata, showUploadModal, updateState } = useChatSystemContext();
 
   useEffect(() => {
     let interval;
@@ -23,9 +26,11 @@ const UploadFilePopup = () => {
           const newValue = prevValue + incrementAmount;
           if (newValue >= 100) {
             clearInterval(interval);
-            setShowUploadModal(false);
+
+            updateState("showUploadModal", false);
+
             setTimeout(() => {
-              setShowAttachment(true);
+              updateState("showAttachment", true);
             }, 800);
             return 100;
           }
@@ -38,7 +43,6 @@ const UploadFilePopup = () => {
 
     return () => clearInterval(interval);
   }, [showUploadModal]);
-
 
   return (
     <div
@@ -54,13 +58,13 @@ const UploadFilePopup = () => {
         <Image
           className="cross-icon"
           src={cross}
-          onClick={() => setShowUploadModal(false)}
+          onClick={() => updateState("showUploadModal", false)}
           alt="cross"
         />
       </div>
       <div className="body">
         <div className="col-1">
-          <Image src={getUploadIconType(filedata?.type)} alt="upload_icon"/>
+          <Image src={getUploadIconType(filedata?.type)} alt="upload_icon" />
           <div>
             <p className="chat-text filename">
               {filedata?.name && filedata?.name.length >= 15

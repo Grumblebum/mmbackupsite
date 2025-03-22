@@ -1,3 +1,15 @@
+import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import ClipboardJS from "clipboard";
+
+import { SessionTypeEnum } from "@/enums/session-type-enum";
+
+import { chatContext } from "@/chat-context";
+
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+
+import { ShareURL } from "@/utils/share-url";
+
 import chain from "@/assets/icons/chat/chain.svg";
 import crossIcon from "@/assets/icons/chat/chat_mobile_icon/cross.svg";
 import instagram from "@/assets/icons/chat/instagram.svg";
@@ -6,28 +18,22 @@ import message from "@/assets/icons/chat/messageIcon.svg";
 import messenger from "@/assets/icons/chat/messenger.svg";
 import telegram from "@/assets/icons/chat/telegram.svg";
 import whatsapp from "@/assets/icons/chat/whatsapp.svg";
-import { chatContext } from "@/chat-context";
-import { ShareURL } from "@/utils/share-url";
-import ClipboardJS from "clipboard";
-import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
 
 const ShareModeTooltip = ({ isAttachment }) => {
-  const {
-    showShareTooltip,
-    setShareTooltip,
-    setShowCopiedNotification,
-    sessionData,
-  } = chatContext();
   const [initialUrl, setInitialUrl] = useState("");
 
+  const { sessionData } = chatContext();
+
   const tooltipRef = useRef(null);
+
+  const { showShareTooltip, updateState } = useChatSystemContext();
+
   useEffect(() => {
     const url = window.location.origin + window.location.pathname;
     setInitialUrl(url);
     const handleClickOutside = (event) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
-        setShareTooltip(false);
+        updateState("showShareTooltip", false);
       }
     };
 
@@ -35,19 +41,20 @@ const ShareModeTooltip = ({ isAttachment }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [setShareTooltip]);
+  }, [updateState]);
 
   const handleCopy = (text) => {
-    setShareTooltip(false);
+    updateState("showShareTooltip", false);
+
     const textToCopy = text;
     if (textToCopy) {
       const tempButton = document.createElement("button");
       tempButton.setAttribute("data-clipboard-text", textToCopy);
       const clipboard = new ClipboardJS(tempButton);
       clipboard.on("success", () => {
-        setShowCopiedNotification(true);
+        updateState("showCopiedNotification", true);
         setTimeout(() => {
-          setShowCopiedNotification(false);
+          updateState("showCopiedNotification", false);
         }, 2000);
       });
 
@@ -59,6 +66,7 @@ const ShareModeTooltip = ({ isAttachment }) => {
       tempButton.remove();
     }
   };
+
   return (
     <div
       ref={tooltipRef}
@@ -72,7 +80,7 @@ const ShareModeTooltip = ({ isAttachment }) => {
         <Image
           src={crossIcon}
           id="projectMode-cross"
-          onClick={() => setShareTooltip(false)}
+          onClick={() => updateState("showShareTooltip", false)}
           alt="crossIcon"
         />
       </div>
@@ -106,7 +114,7 @@ const ShareModeTooltip = ({ isAttachment }) => {
             onClick={() =>
               handleCopy(
                 `${initialUrl}${
-                  sessionData.type == "Secure"
+                  sessionData.type == SessionTypeEnum.SECURE
                     ? `\n\nSecurity Code: ${sessionData?.secureCode}`
                     : ""
                 }`

@@ -1,21 +1,14 @@
-import { chatContext } from "@/chat-context";
-import CustomTurnstile from "@/components/custom-turnstile";
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Spin } from "antd";
+
+import { chatContext } from "@/chat-context";
+
+import CustomTurnstile from "@/components/custom-turnstile";
+
 import { LoadingOutlined } from "@ant-design/icons";
-/**
- * CloudflareFooter component handles the rendering of the Turnstile widget and
- * the generate link/Open Chat button at the bottom of the Cloudflare modal.
- * It also renders a note about the Terms of Use and Privacy Policy.
- *
- * @param {func} setIsCfVerified - sets the state of whether the Turnstile verification has been completed
- * @param {string} url - the url of the chat session
- * @param {func} setUrl - sets the state of the url
- * @param {func} setSecureCode - sets the state of the secure code
- * @param {boolean} IsCfVerified - whether the Turnstile verification has been completed
- * @param {object} router - the router object
- * @returns {ReactElement} the rendered CloudflareFooter component
- */
+
 const CloudflareFooter = ({
   setIsCfVerified,
   url,
@@ -24,7 +17,9 @@ const CloudflareFooter = ({
   IsCfVerified,
   router,
 }) => {
-  const { setSessionData, sessionData,setIsLoadingGenerateLink,isLoadingGenerateLink } = chatContext();
+  const [isLoadingGenerateLink, setIsLoadingGenerateLink] = useState(false);
+
+  const { setSessionData, sessionData } = chatContext();
 
   const handleOnGenerateLink = () => {
     if (!url) {

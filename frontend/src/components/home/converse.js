@@ -1,15 +1,21 @@
 "use client";
-import { chatContext } from "@/chat-context";
+
+import React, { useRef } from "react";
 import Image from "next/image";
-import { useRef } from "react";
+
+import { SessionTypeEnum } from "@/enums/session-type-enum";
+
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+
 import scroll_down from "../../../src/assets/icons/scroll_down.svg";
 import banner from "../../../src/assets/images/converse.png";
 
 const Converse = () => {
-  const { dropdownSelected } = chatContext();
   const sectionRef = useRef(null);
 
-  // Function to handle scrolling
+  const { dropdownSelected } = useChatSystemContext();
+
+  // FUNCTION TO HANDLE SCROLLING
   const scrollToSection = () => {
     const elementPosition =
       sectionRef.current.getBoundingClientRect().top + window.scrollY;
@@ -37,14 +43,18 @@ const Converse = () => {
             <Image
               src={scroll_down}
               className={`down-arrow ${
-                dropdownSelected == "Secure" ? "secure" : ".non-secure"
+                dropdownSelected == SessionTypeEnum.SECURE
+                  ? "secure"
+                  : ".non-secure"
               }`}
               onClick={scrollToSection}
             />
             <div
               ref={sectionRef}
               className={`right ${
-                dropdownSelected == "Secure" ? "secure" : "non-secure"
+                dropdownSelected == SessionTypeEnum.SECURE
+                  ? "secure"
+                  : "non-secure"
               }`}
             >
               <Image src={banner} alt="banner" />

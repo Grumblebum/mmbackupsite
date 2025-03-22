@@ -1,21 +1,22 @@
 import React, { useEffect, useRef } from "react";
-import projectmodeTooltip from "@/assets/icons/chat/chat_mobile_icon/projectmodeTooltip2.svg";
 import Image from "next/image";
+
+import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+
+import projectmodeTooltip from "@/assets/icons/chat/chat_mobile_icon/projectmodeTooltip2.svg";
 import crossIcon from "@/assets/icons/chat/chat_mobile_icon/cross.svg";
-import { chatContext } from "@/chat-context";
-import useCheckIsMobileView from "@/hook/useCheckIsMobileView";
 
 const ProjectModeTooltip = ({ isAttachment }) => {
-  const { showProjectModeTooltip, setShowProjectModeTooltip } = chatContext();
   const tooltipRef = useRef(null);
+
   const { isMobileView } = useCheckIsMobileView();
-  const onClickReadMore = () => {
-    window.open("/faqs#project_mode", "_blank");
-  };
+  const { showProjectModeTooltip, updateState } = useChatSystemContext();
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
-        setShowProjectModeTooltip(false);
+        updateState("showProjectModeTooltip", false);
       }
     };
 
@@ -23,11 +24,16 @@ const ProjectModeTooltip = ({ isAttachment }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [setShowProjectModeTooltip]);
+  }, [updateState]);
 
   useEffect(() => {
-    if (!isMobileView) setShowProjectModeTooltip(false);
+    if (!isMobileView) updateState("showProjectModeTooltip", false);
   }, [isMobileView]);
+
+  const onClickReadMore = () => {
+    window.open("/faqs#project_mode", "_blank");
+  };
+
   return (
     <div
       ref={tooltipRef}
@@ -38,13 +44,15 @@ const ProjectModeTooltip = ({ isAttachment }) => {
     >
       <div className="header-projectmode">
         <p className="chat-text">Project Mode Active</p>
+
         <Image
           src={crossIcon}
           id="projectMode-cross"
-          onClick={() => setShowProjectModeTooltip(false)}
+          onClick={() => updateState("showProjectModeTooltip", false)}
           alt="crossIcon"
         />
       </div>
+
       <div>
         <Image
           src={projectmodeTooltip}

@@ -1,3 +1,20 @@
+import React, { useEffect, useRef } from "react";
+import Image from "next/image";
+import Typed from "typed.js";
+
+import { messageType } from "@/dummy-data";
+
+import { SessionTypeEnum } from "@/enums/session-type-enum";
+
+import { chatContext } from "@/chat-context";
+
+import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
+
+import { getMessageClass } from "./chat-messages-utils";
+
+import { UserColorPalette } from "@/utils/user-color-palette";
+
 import blue_alert from "@/assets/icons/chat/blue_alert.svg";
 import chatgptIcon from "@/assets/icons/chat/chatgpt.svg";
 import circulartick from "@/assets/icons/chat/circular-tick.svg";
@@ -6,14 +23,6 @@ import lock_grey from "@/assets/icons/chat/lock_grey.svg";
 import pin from "@/assets/icons/chat/pin.svg";
 import alert from "@/assets/icons/chat/red_alert.svg";
 import warning_sign from "@/assets/icons/chat/warning_sign.svg";
-import { chatContext } from "@/chat-context";
-import { messageType } from "@/dummy-data";
-import Image from "next/image";
-import { useEffect, useRef } from "react";
-import Typed from "typed.js";
-import { getMessageClass } from "./chat-messages-utils";
-import useCheckIsMobileView from "@/hook/useCheckIsMobileView";
-import { UserColorPalette } from "@/utils/user-color-palette";
 
 const Message = ({
   type = messageType.GREETING,
@@ -23,8 +32,18 @@ const Message = ({
   handlerColor = UserColorPalette[3],
   userNameColor = UserColorPalette[3],
 }) => {
+  const { sessionData } = chatContext();
+
   const el = useRef(null);
+
   const { isMessageMobileView: isMobileView } = useCheckIsMobileView();
+  const {
+    isWalletConnected,
+    isWalletExist,
+    connectWalletFunction,
+    updateState,
+  } = useChatSystemContext();
+
   useEffect(() => {
     let typed;
     if (el.current) {
@@ -39,15 +58,6 @@ const Message = ({
     };
   }, []);
 
-  const {
-    setShowReportfileModal,
-    sessionData,
-    connectWalletFunction,
-    isWalletConnected,
-    isWalletExist,
-  } = chatContext();
-
-  // UI
   const renderAdertisment = () => {
     return (
       <>
@@ -74,6 +84,7 @@ const Message = ({
       </>
     );
   };
+
   const renderMessageMoment = () => {
     return (
       <>
@@ -84,7 +95,8 @@ const Message = ({
             paddingTop: "14px",
           }}
         >
-          {(sessionData?.type == "Secure" || sessionData?.type == "Wallet") && (
+          {(sessionData?.type == SessionTypeEnum.SECURE ||
+            sessionData?.type == SessionTypeEnum.WALLET) && (
             <>
               Thank you!
               <div id="dot-line">
@@ -115,6 +127,7 @@ const Message = ({
       </>
     );
   };
+
   const renderMessageMomentAlert = () => {
     return (
       <>
@@ -128,6 +141,7 @@ const Message = ({
       </>
     );
   };
+
   const renderMessageMomentAlertRemoveUser = () => {
     return (
       <>
@@ -338,6 +352,7 @@ const Message = ({
       </>
     );
   };
+
   const renderProjectMode = () => {
     return (
       <>
@@ -476,7 +491,7 @@ const Message = ({
                     <Image src={warning_sign} alt="warning_sign" />
                     <p
                       className="small-msg-txt"
-                      onClick={() => setShowReportfileModal(true)}
+                      onClick={() => updateState("showReportfileModal", true)}
                     >
                       Report File
                     </p>
@@ -545,7 +560,7 @@ const Message = ({
                 <Image src={warning_sign} alt="warning_sign" />
                 <p
                   className="small-msg-txt"
-                  onClick={() => setShowReportfileModal(true)}
+                  onClick={() => updateState("showReportfileModal", true)}
                 >
                   Report File
                 </p>
@@ -557,7 +572,7 @@ const Message = ({
     );
   };
 
-  // NessageContent
+  // MessageContent
   const renderMessageContent = (type) => {
     const renderMap = {
       [messageType.ADVERTISEMENT]: renderAdertisment,
@@ -601,8 +616,8 @@ const Message = ({
       <div
         style={{
           margin:
-            (sessionData?.type == "Standard" ||
-              sessionData?.type == "Secure") &&
+            (sessionData?.type == SessionTypeEnum.STANDARD ||
+              sessionData?.type == SessionTypeEnum.SECURE) &&
             type == messageType.MESSAGE_MOMENT
               ? "15px 0px"
               : "",
