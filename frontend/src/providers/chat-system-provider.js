@@ -21,6 +21,7 @@ const initialState = {
 
   dropdownSelected: SessionTypeEnum.STANDARD,
   expiryTime: "",
+  activeUser: "",
 
   connectWalletFunction: () => {},
   filedata: {},
@@ -30,6 +31,7 @@ const initialState = {
     sessionType: "",
     sessionSeurityCode: "",
   },
+  sessionUsers: [],
 };
 
 export const ChatSystemContextProvider = ({ children }) => {
