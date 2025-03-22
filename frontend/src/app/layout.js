@@ -1,6 +1,6 @@
-import ChatContextProvider from "@/chat-context";
-import "../../public/styles/main.scss";
 import ChatSystemContextProvider from "@/providers/chat-system-provider";
+
+import "../../public/styles/main.scss";
 
 export const metadata = {
   title: "MessageMoment - The real meaning to personal!",
@@ -76,9 +76,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <ChatSystemContextProvider>
-          <ChatContextProvider>{children}</ChatContextProvider>
-        </ChatSystemContextProvider>
+        <ChatSystemContextProvider>{children}</ChatSystemContextProvider>
       </body>
     </html>
   );

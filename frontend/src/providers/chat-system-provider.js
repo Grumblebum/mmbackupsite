@@ -7,7 +7,6 @@ import { SessionTypeEnum } from "@/enums/session-type-enum";
 import { ChatSystemContext } from "@/contexts/chat-system-context";
 
 const initialState = {
-  filedata: {},
   isWalletExist: true,
   showShareTooltip: false,
   isVerifiedCode: false,
@@ -15,11 +14,22 @@ const initialState = {
   showUploadModal: false,
   isWalletConnected: false,
   showChatLeaveModal: false,
-  dropdownSelected: SessionTypeEnum.STANDARD,
   showReportfileModal: false,
   showProjectModeTooltip: false,
   showCopiedNotification: false,
+  isProjectModeOn: false,
+
+  dropdownSelected: SessionTypeEnum.STANDARD,
+  expiryTime: "",
+
   connectWalletFunction: () => {},
+  filedata: {},
+  sessionData: {
+    sessionURL: "",
+    sessionCode: "",
+    sessionType: "",
+    sessionSeurityCode: "",
+  },
 };
 
 export const ChatSystemContextProvider = ({ children }) => {

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Spin } from "antd";
 
-import { chatContext } from "@/chat-context";
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 
 import CustomTurnstile from "@/components/custom-turnstile";
 
@@ -19,7 +19,7 @@ const CloudflareFooter = ({
 }) => {
   const [isLoadingGenerateLink, setIsLoadingGenerateLink] = useState(false);
 
-  const { setSessionData, sessionData } = chatContext();
+  const { sessionData, updateState } = useChatSystemContext();
 
   const handleOnGenerateLink = () => {
     if (!url) {
@@ -27,16 +27,18 @@ const CloudflareFooter = ({
       setTimeout(() => {
         setUrl("https://messagemoment.com/chat/sqjgcf9o2s5na");
         setSecureCode("4562");
-        setSessionData((prev) => ({
-          ...prev,
-          code: "sqjgcf9o2s5na",
-          url: "https://messagemoment.com/chat/sqjgcf9o2s5na",
-          secureCode: "4562",
-        }));
+
+        updateState("sessionData", {
+          ...sessionData,
+          sessionURL: "https://messagemoment.com/chat/sqjgcf9o2s5na",
+          sessionCode: "sqjgcf9o2s5na",
+          sessionSeurityCode: "4562",
+        });
+
         setIsLoadingGenerateLink(false);
       }, 1000);
     } else {
-      router.push(`/chat/${sessionData?.code}`);
+      router.push(`/chat/${sessionData?.sessionCode}`);
     }
   };
 

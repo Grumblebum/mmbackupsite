@@ -3,16 +3,16 @@ import { SessionTypeEnum } from "@/enums/session-type-enum";
 export const ShareURL = (type, sessionData, url) => {
   const shareText = encodeURIComponent(
     `Join me for a chat on MessageMoment – ${url}${
-      sessionData.type == SessionTypeEnum.SECURE
-        ? `\n\nSecurity Code: ${sessionData?.secureCode}`
+      sessionData.sessionType == SessionTypeEnum.SECURE
+        ? `\n\nSecurity Code: ${sessionData?.sessionSeurityCode}`
         : ""
     }`
   );
 
   const shareTextMail = encodeURIComponent(
     `Join me here – ${url}/${
-      sessionData.type == SessionTypeEnum.SECURE
-        ? `\n\nSecurity Code: ${sessionData?.secureCode}`
+      sessionData.sessionType == SessionTypeEnum.SECURE
+        ? `\n\nSecurity Code: ${sessionData?.sessionSeurityCode}`
         : ""
     }`
   );
@@ -20,8 +20,8 @@ export const ShareURL = (type, sessionData, url) => {
   const shareTelegramURL = encodeURIComponent(`${url}`.trim());
   const shareTelegramText = encodeURIComponent(
     `Join me for a chat on MessageMoment.${
-      sessionData.type == SessionTypeEnum.SECURE
-        ? `\n\nSecurity Code: ${sessionData?.secureCode}`
+      sessionData.sessionType == SessionTypeEnum.SECURE
+        ? `\n\nSecurity Code: ${sessionData?.sessionSeurityCode}`
         : ""
     }`
   );

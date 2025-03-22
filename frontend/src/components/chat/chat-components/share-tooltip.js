@@ -4,8 +4,6 @@ import ClipboardJS from "clipboard";
 
 import { SessionTypeEnum } from "@/enums/session-type-enum";
 
-import { chatContext } from "@/chat-context";
-
 import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 
 import { ShareURL } from "@/utils/share-url";
@@ -22,11 +20,9 @@ import whatsapp from "@/assets/icons/chat/whatsapp.svg";
 const ShareModeTooltip = ({ isAttachment }) => {
   const [initialUrl, setInitialUrl] = useState("");
 
-  const { sessionData } = chatContext();
-
   const tooltipRef = useRef(null);
 
-  const { showShareTooltip, updateState } = useChatSystemContext();
+  const { sessionData, showShareTooltip, updateState } = useChatSystemContext();
 
   useEffect(() => {
     const url = window.location.origin + window.location.pathname;
@@ -114,8 +110,8 @@ const ShareModeTooltip = ({ isAttachment }) => {
             onClick={() =>
               handleCopy(
                 `${initialUrl}${
-                  sessionData.type == SessionTypeEnum.SECURE
-                    ? `\n\nSecurity Code: ${sessionData?.secureCode}`
+                  sessionData.sessionType == SessionTypeEnum.SECURE
+                    ? `\n\nSecurity Code: ${sessionData?.sessionSeurityCode}`
                     : ""
                 }`
               )

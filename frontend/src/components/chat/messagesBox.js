@@ -22,8 +22,6 @@ import {
   renderRemoveUserText,
 } from "@/dummy-data";
 
-import { chatContext } from "@/chat-context";
-
 import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
 import usePhantomWallet from "@/hooks/usePhantomWallet";
@@ -73,19 +71,18 @@ const MessageBox = () => {
   const [showCommands, setShowCommands] = useState(false);
   const [InputFieldDisabled, setInputFieldDisabled] = useState(false);
 
-  const { setIsProjectModeOn, sessionData, setExpiryTime, isProjectModeOn } =
-    chatContext();
-
   const fileInputRef = useRef(null);
   const commandModalRef = useRef();
   const messageContainerRef = useRef(null);
 
   const {
     isWalletConnected,
+    isProjectModeOn,
     showAttachment,
     filedata,
     isVerifiedCode,
     updateState,
+    sessionData,
   } = useChatSystemContext();
   const { isMobileView } = useCheckIsMobileView();
   const { PhantomSessionApproved, isLoading } = usePhantomWallet();
@@ -138,7 +135,7 @@ const MessageBox = () => {
   }, [isMobileView]);
 
   useEffect(() => {
-    if (sessionData.type == SessionTypeEnum.WALLET) {
+    if (sessionData.sessionType == SessionTypeEnum.WALLET) {
       if (isWalletConnected) {
         setInputFieldDisabled(false);
       } else {
@@ -200,7 +197,7 @@ const MessageBox = () => {
   }, []);
 
   useEffect(() => {
-    if (sessionData?.type == SessionTypeEnum.SECURE && !isVerifiedCode) {
+    if (sessionData?.sessionType == SessionTypeEnum.SECURE && !isVerifiedCode) {
       setKeyboardType("number");
     } else {
       setKeyboardType("text");
@@ -264,15 +261,16 @@ const MessageBox = () => {
   };
 
   const InitialChatLoad = () => {
-    if (sessionData?.type === SessionTypeEnum.STANDARD) {
+    if (sessionData?.sessionType === SessionTypeEnum.STANDARD) {
       setChatMessages([
         ...chatMessage,
         {
           type:
-            sessionData?.type == SessionTypeEnum.STANDARD
+            sessionData?.sessionType == SessionTypeEnum.STANDARD
               ? messageType.MESSAGE_MOMENT
               : messageType.SECURITY_CODE,
-          handlerName: sessionData?.type == SessionTypeEnum.SECURE && " ",
+          handlerName:
+            sessionData?.sessionType == SessionTypeEnum.SECURE && " ",
         },
         {
           type: messageType.MM_ERROR_MSG,
@@ -280,7 +278,7 @@ const MessageBox = () => {
             "The chat session is full! There are currently 10/10 users joined.",
         },
       ]);
-    } else if (sessionData?.type === SessionTypeEnum.WALLET) {
+    } else if (sessionData?.sessionType === SessionTypeEnum.WALLET) {
       setChatMessages([
         ...chatMessage,
         {
@@ -293,15 +291,16 @@ const MessageBox = () => {
         ...chatMessage,
         {
           type:
-            sessionData?.type == SessionTypeEnum.STANDARD
+            sessionData?.sessionType == SessionTypeEnum.STANDARD
               ? messageType.MESSAGE_MOMENT
               : messageType.SECURITY_CODE,
-          handlerName: sessionData?.type == SessionTypeEnum.SECURE && " ",
+          handlerName:
+            sessionData?.sessionType == SessionTypeEnum.SECURE && " ",
         },
       ]);
     }
 
-    if (sessionData?.type == SessionTypeEnum.STANDARD) {
+    if (sessionData?.sessionType == SessionTypeEnum.STANDARD) {
       setAskHandlerName(true);
     }
   };
@@ -417,7 +416,10 @@ const MessageBox = () => {
       }
 
       // VALIDATE SECURE CODE
-      if (sessionData?.type === SessionTypeEnum.SECURE && !isVerifiedCode) {
+      if (
+        sessionData?.sessionType === SessionTypeEnum.SECURE &&
+        !isVerifiedCode
+      ) {
         const numberOnlyRegex = /^(?!.*[.eE])[0-9]{4}$/;
 
         if (numberOnlyRegex.test(value.slice(0, 4))) {
@@ -582,7 +584,10 @@ const MessageBox = () => {
   };
 
   const handleKeyDown = (event) => {
-    if (sessionData?.type === SessionTypeEnum.SECURE && !isVerifiedCode) {
+    if (
+      sessionData?.sessionType === SessionTypeEnum.SECURE &&
+      !isVerifiedCode
+    ) {
       if (
         event.keyCode === 69 ||
         event.keyCode === 189 ||
@@ -710,11 +715,14 @@ const MessageBox = () => {
   };
 
   const verifySecurityCode = () => {
-    if (sessionData?.type === SessionTypeEnum.SECURE && !isVerifiedCode) {
+    if (
+      sessionData?.sessionType === SessionTypeEnum.SECURE &&
+      !isVerifiedCode
+    ) {
       const numberOnlyRegex = /^(?!.*[.eE])[0-9]{4}$/;
 
       if (!numberOnlyRegex.test(input)) return;
-      if (input == sessionData?.secureCode) {
+      if (input == sessionData?.sessionSeurityCode) {
         setChatMessages([
           ...chatMessage,
 
@@ -1021,7 +1029,9 @@ const MessageBox = () => {
             handlerColor: "white",
           },
         ]);
-        setExpiryTime(timer);
+
+        updateState("expiryTime", timer);
+
         scrollToBottom();
         setinput("");
         setShowCommands(false);
@@ -1099,7 +1109,9 @@ const MessageBox = () => {
     list.push("/mm");
 
     setCommandsList(list);
-    setIsProjectModeOn(true);
+
+    updateState("isProjectModeOn", true);
+
     setinput("");
     setShowCommands(false);
     setAskprojectMode(false);
@@ -1128,7 +1140,9 @@ const MessageBox = () => {
       },
     ]);
     setCommandsList(list);
-    setIsProjectModeOn(false);
+
+    updateState("isProjectModeOn", true);
+
     setAskExistProjectMode(false);
     setinput("");
     setShowCommands(false);

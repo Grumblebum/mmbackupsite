@@ -3,7 +3,7 @@ import Image from "next/image";
 
 import { SessionTypeEnum } from "@/enums/session-type-enum";
 
-import { chatContext } from "@/chat-context";
+import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 
 import { ShareURL } from "@/utils/share-url";
 
@@ -21,7 +21,7 @@ const ShareButton = ({ onCopyClick }) => {
   const [showModal, setShowModal] = useState(false);
   const [initialUrl, setInitialUrl] = useState("");
 
-  const { sessionData } = chatContext();
+  const { sessionData } = useChatSystemContext();
 
   const modalRef = useRef(null);
   const buttonRef = useRef(null);
@@ -89,8 +89,8 @@ const ShareButton = ({ onCopyClick }) => {
           onClick={() =>
             onCopyClick(
               `${initialUrl}${
-                sessionData.type == SessionTypeEnum.SECURE
-                  ? `\n\nSecurity Code: ${sessionData?.secureCode}`
+                sessionData.sessionType == SessionTypeEnum.SECURE
+                  ? `\n\nSecurity Code: ${sessionData?.sessionSeurityCode}`
                   : ""
               }`
             )

@@ -6,8 +6,6 @@ import { isFirefox } from "react-device-detect";
 
 import { SessionTypeEnum } from "@/enums/session-type-enum";
 
-import { chatContext } from "@/chat-context";
-
 import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 
 import MobileQrScannerModal from "./cloudflare-components/Qr-scanner-mobile-modal";
@@ -44,21 +42,20 @@ const Cloudflare = () => {
   const [isCopyVisibleTooltip, setCopyIsVisibleTooltip] = useState(false);
   const [isQrVisibleTooltip, setQrIsVisibleTooltip] = useState(false);
 
-  const { setSessionData, sessionData } = chatContext();
-
   const router = useRouter();
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
   const mobileModalRef = useRef(null);
 
-  const { updateState } = useChatSystemContext();
+  const { sessionData, updateState } = useChatSystemContext();
 
   useEffect(() => {
     updateState("isWalletConnected", false);
-    setSessionData((prev) => ({
-      ...prev,
-      type: SessionTypeEnum.STANDARD,
-    }));
+
+    updateState("sessionData", {
+      ...sessionData,
+      sessionType: SessionTypeEnum.STANDARD,
+    });
   }, [isFirefox]);
 
   useEffect(() => {
@@ -92,10 +89,11 @@ const Cloudflare = () => {
     setUrl("");
     setSecureCode("");
     setUrlType(value);
-    setSessionData((prev) => ({
-      ...prev,
-      type: value,
-    }));
+
+    updateState("sessionData", {
+      ...sessionData,
+      sessionType: value,
+    });
   };
 
   const handleCopy = async () => {
@@ -113,20 +111,24 @@ const Cloudflare = () => {
       const randomIndex = Math.floor(Math.random() * characters.length);
       result += characters[randomIndex];
     }
-    setSessionData((prev) => ({
-      ...prev,
-      code: result,
-      url: `https://messagemoment.com/chat/${result}`,
-    }));
+
+    updateState("sessionData", {
+      ...sessionData,
+      sessionURL: `https://messagemoment.com/chat/${result}`,
+      sessionCode: result,
+    });
+
     return result;
   };
 
   function generateRandomNumber() {
     const result = Math.floor(1000 + Math.random() * 9000);
-    setSessionData((prev) => ({
-      ...prev,
-      secureCode: result,
-    }));
+
+    updateState("sessionData", {
+      ...sessionData,
+      sessionSeurityCode: result,
+    });
+
     return result;
   }
 
@@ -179,10 +181,12 @@ const Cloudflare = () => {
     setUrl("");
     setSecureCode("");
     setUrlType(option);
-    setSessionData((prev) => ({
-      ...prev,
-      type: option,
-    }));
+
+    updateState("sessionData", {
+      ...sessionData,
+      sessionType: option,
+    });
+
     setSelectedOption(option);
     setOpen(false);
     updateState("dropdownSelected", option);
@@ -235,6 +239,7 @@ const Cloudflare = () => {
         }`}
       >
         <CloudflareHeader />
+
         <MobileCloudFlare
           ref={buttonRef}
           openMobileModal={openMobileModal}
@@ -250,10 +255,8 @@ const Cloudflare = () => {
             handleRegenrateClick,
             router,
             secureCode,
-            sessionData,
             setSecureCode,
             setIsCfVerified,
-            setSessionData,
             setUrl,
             url,
           }}

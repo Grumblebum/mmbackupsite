@@ -5,12 +5,9 @@ import Image from "next/image";
 import { Tooltip } from "antd";
 import Link from "next/link";
 import ClipboardJS from "clipboard";
-import { useRouter } from "next/navigation";
 import { getYear } from "date-fns";
 
 import { users } from "@/dummy-data";
-
-import { chatContext } from "@/chat-context";
 
 import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
@@ -43,12 +40,10 @@ export const ChatHeader = () => {
   const [IsLandscape, setIsLandscape] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
 
-  const { isProjectModeOn, expiryTime } = chatContext();
-
-  const router = useRouter();
   const currentYear = getYear(new Date());
   const { isMobileView } = useCheckIsMobileView();
-  const { showCopiedNotification, updateState } = useChatSystemContext();
+  const { expiryTime, isProjectModeOn, showCopiedNotification, updateState } =
+    useChatSystemContext();
 
   useEffect(() => {
     const preventDefault = (e) => e.preventDefault();

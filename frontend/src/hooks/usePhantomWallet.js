@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 
-import { chatContext } from "@/chat-context";
+import { useChatSystemContext } from "./use-chat-system-context";
 
 const usePhantomWallet = () => {
   const [PhantomSessionApproved, setPhantomSession] = useState(false);
   const [isLoading, setLoading] = useState(true);
 
-  const { setSessionData } = chatContext();
+  const { sessionData, updateState } = useChatSystemContext();
 
   useEffect(() => {
-    // Get the query parameters from the URL
     try {
       const queryParams = new URLSearchParams(window.location.search);
       const phantomKey = queryParams.get("phantom_encryption_public_key");
@@ -19,16 +18,18 @@ const usePhantomWallet = () => {
 
       if (phantomKey && nonce && data) {
         setLoading(false);
-        setSessionData((prev) => ({
-          ...prev,
-          type: SessionTypeEnum.WALLET,
-        }));
+
+        updateState("sessionData", {
+          ...sessionData,
+          sessionType: SessionTypeEnum.WALLET,
+        });
+
         setPhantomSession(true);
       } else if (phantomError) {
-        setSessionData((prev) => ({
-          ...prev,
-          type: SessionTypeEnum.WALLET,
-        }));
+        updateState("sessionData", {
+          ...sessionData,
+          sessionType: SessionTypeEnum.WALLET,
+        });
         setPhantomSession(false);
       } else {
         setPhantomSession(false);

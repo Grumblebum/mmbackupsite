@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import { chatContext } from "@/chat-context";
-
 import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
 import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 

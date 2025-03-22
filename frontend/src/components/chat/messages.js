@@ -6,8 +6,6 @@ import { messageType } from "@/dummy-data";
 
 import { SessionTypeEnum } from "@/enums/session-type-enum";
 
-import { chatContext } from "@/chat-context";
-
 import useCheckIsMobileView from "@/hooks/useCheckIsMobileView";
 import { useChatSystemContext } from "@/hooks/use-chat-system-context";
 
@@ -32,8 +30,6 @@ const Message = ({
   handlerColor = UserColorPalette[3],
   userNameColor = UserColorPalette[3],
 }) => {
-  const { sessionData } = chatContext();
-
   const el = useRef(null);
 
   const { isMessageMobileView: isMobileView } = useCheckIsMobileView();
@@ -42,6 +38,7 @@ const Message = ({
     isWalletExist,
     connectWalletFunction,
     updateState,
+    sessionData,
   } = useChatSystemContext();
 
   useEffect(() => {
@@ -95,8 +92,8 @@ const Message = ({
             paddingTop: "14px",
           }}
         >
-          {(sessionData?.type == SessionTypeEnum.SECURE ||
-            sessionData?.type == SessionTypeEnum.WALLET) && (
+          {(sessionData?.sessionType == SessionTypeEnum.SECURE ||
+            sessionData?.sessionType == SessionTypeEnum.WALLET) && (
             <>
               Thank you!
               <div id="dot-line">
@@ -616,8 +613,8 @@ const Message = ({
       <div
         style={{
           margin:
-            (sessionData?.type == SessionTypeEnum.STANDARD ||
-              sessionData?.type == SessionTypeEnum.SECURE) &&
+            (sessionData?.sessionType == SessionTypeEnum.STANDARD ||
+              sessionData?.sessionType == SessionTypeEnum.SECURE) &&
             type == messageType.MESSAGE_MOMENT
               ? "15px 0px"
               : "",
